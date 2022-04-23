@@ -1,51 +1,53 @@
 pragma solidity ^0.8.13;
 
 contract GitRepoContract {
-    // mapping(uint256 => Repo) repositories;
+    Repo[] private repositories;
+    // The keys will be encrypted using public key of reciever
+    mapping(uint256 => mapping(address => uint256)) public keys;    // TODO: find size of encrypted key
+    mapping(uint256 => mapping(address => permissions)) public user_permissions;
 
-    Repo[] repositories;
-    mapping(uint256 => mapping(address => uint256)) keys;    // find size of encrypted key
-    mapping(uint256 => mapping(address => permissions)) user_permissions;
     enum permissions {
             None,
-            Admin,
-            Maintainer,
+            Reader,
             Writer,
-            Reader
+            Maintainer,
+            Admin
     }
     struct Repo {
         uint256 uuid;
         string storage_address;
-        uint256 integrity;  // SHA256 hash of the file, to verify if stored repo is intact
+        bytes32 integrity;  // SHA256 hash of the file, to verify if stored repo is intact
     }
 
-    function initialize_repo(uint256 _integrity, uint256 _key, string memory _storage_address) public returns(Repo memory){
-        // TODO: generate uuid here
+    function initialize_repo(string memory _storage_address, bytes32 _integrity, uint256 _key) public returns (uint256 uuid){
         uint256 _uuid = repositories.length;
-        Repo storage repo;
-        repo.uuid = _uuid;
-        repo.storage_address = _storage_address;
-        repo.integrity = _integrity;
-        keys[_uuid][msg.sender] = _key;
-        user_permissions[_uuid][msg.sender] = permissions.Admin;
+        repositories.push(Repo({
+            uuid: _uuid,
+            storage_address: _storage_address,
+            integrity: _integrity
+        }));
 
-        repositories.push(repo);
-        Repo memory temp = repo;
-        return temp;
+        user_permissions[_uuid][msg.sender] = permissions.Admin;
+        keys[_uuid][msg.sender] = _key;
+
+        return uuid;
     }
 
-    function grant_access(uint256 _uuid, address _address, permissions _role, uint256 _key) private {
-        Repo storage repo = repositories[_uuid];
-
+    function grant_access(uint256 _uuid, address _address, permissions _role, uint256 _key) public {
         // check if caller is Admin
-        require(user_permissions[msg.sender] == permissions.Admin);
+        require(user_permissions[_uuid][msg.sender] == permissions.Admin);
 
-        // by default we give Writer access, TODO: change dynamically
         require(_role != permissions.Admin);
-        user_permissions[_address] = _role;
+        user_permissions[_uuid][_address] = _role;
 
-        // TODO: add encrypted key to map
         keys[_uuid][_address] = _key;
     }
 
+    function push_to_repo(uint256 _uuid, string memory _storage_address, bytes32 _integrity) public {
+        // check if user has writer or admin permission
+        require(user_permissions[_uuid][msg.sender] == permissions.Admin || user_permissions[_uuid][msg.sender] == permissions.Writer);
+
+        repositories[_uuid].storage_address = _storage_address;
+        repositories[_uuid].integrity = _integrity;
+    }
 }
