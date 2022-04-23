@@ -1,0 +1,24 @@
+{
+  "name": "dcgit",
+  "version": "1.0.0",
+  "description": "A decentralized Version Control System that allows users to maintain, share, and collaborate securely without a third-party seeing their code at any stage",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "dcgit": "./index.js"
+  },
+  "keywords": [
+    "Decentralized",
+    "Git"
+  ],
+  "author": "Kunjan Shah, Pratham Gupta",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^5.0.1",
+    "commander": "^9.2.0",
+    "conf": "^10.1.2"
+  },
+  "type": "module"
+}
