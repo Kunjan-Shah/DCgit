@@ -18,7 +18,8 @@
   "dependencies": {
     "chalk": "^5.0.1",
     "commander": "^9.2.0",
-    "conf": "^10.1.2"
+    "conf": "^10.1.2",
+    "web3": "^1.7.3"
   },
   "type": "module"
 }
