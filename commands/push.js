@@ -1,6 +1,6 @@
-import chalk from "chalk"
+const chalk = require('chalk')
 
-export default function init() {
+function push() {
     /******* TODO *********/
     // check before pushing if the state is ready to be pushed or not. If not, throw error
     // get repo "uuid" from .dcgit
@@ -10,3 +10,5 @@ export default function init() {
     // Error handling
     console.log(chalk.greenBright("Pushed successfully"));
 }
+
+module.exports = push;

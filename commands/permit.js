@@ -1,6 +1,6 @@
-import chalk from "chalk"
+const chalk = require('chalk')
 
-export default function permit(role, identity) {
+function permit(role, identity) {
     /******* TODO *********/
     // get repo "uuid" from .dcgit
     // generate "key" which is encrypted by "identity" public key
@@ -11,3 +11,5 @@ export default function permit(role, identity) {
     
     console.log(chalk.greenBright("Permission added successfully successfully"));
 }
+
+module.exports = permit;

@@ -1,8 +1,9 @@
 #! /usr/bin/env node
-import { program } from "commander";
-import init from './commands/init.js';
-import permit from './commands/permit.js';
-import push from './commands/push.js';
+const { program } = require('commander');
+const setup = require("./commands/setup");
+const init = require("./commands/init");
+const permit = require("./commands/permit");
+const push = require('./commands/push.js');
 
 /************************* Instruction to run the code ***********************************/
 /*   run npm i -g to install the cli named "dcgit"
@@ -12,6 +13,11 @@ import push from './commands/push.js';
      2. dcgit permit --role <role> --identity <identity>
      3. dcgit push
 */
+program
+    .command('setup')
+    .description('Setup Ethereum Wallet to use for DCGit')
+    .requiredOption('-p, --privateKey <private key>', 'Private key of the Ethereum wallet')
+    .action(setup)
 
 program
     .command('init')
