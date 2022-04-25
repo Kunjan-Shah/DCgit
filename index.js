@@ -37,5 +37,5 @@ program
     .description('Push the repo')
     .action(push)
 
-
+export const SMART_CONTRACT_ID = '0x2ce37a325e00ddd516b42b80d9f56acbef6cbc691c6349b0b22e564bf044d2d1';
 program.parse();
