@@ -32,7 +32,7 @@ function init() {
   const encryptedZip = cipher.update(zip.toBuffer(), 'binary', 'binary') + cipher.final('binary');;
 
   // add the SHA256 hash of the encrypted zip file to dcgit.json
-  dcgit.hash = crypto.createHash('sha256').update(encryptedZip).digest('hex');
+  dcgit.integrity = crypto.createHash('sha256').update(encryptedZip).digest('hex');
 
   // write dcgit.json and encrypted zip file to the repo
   fs.writeFileSync('./dcgit.json', JSON.stringify(dcgit));
