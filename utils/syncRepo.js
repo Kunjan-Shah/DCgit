@@ -10,26 +10,29 @@ const simpleGit = require('simple-git');
  */
 async function syncRepo(branch, zip) {
     try {
-        // Create a temporary folder, write the zip buffer to it and unzip it
-        const tmpFolder = path.join(os.tmpdir(), 'dcgit')
-        fs.mkdirSync(tmpFolder)
-        fs.writeFileSync(path.join(tmpFolder, 'dcgit.zip'), zip)
-        const zipFile = new AdmZip(path.join(tmpFolder, 'dcgit.zip'))
-        zipFile.extractAllTo(tmpFolder, true)
+        // in the local directory, we create a .tmp folder and save the zip file there
+        fs.writeFileSync(path.join('.', 'dcgit-pulled.zip'), zip.toString('binary'), 'binary');
 
-        // Add the temporary folder as a git remote
-        const git = simpleGit()
-        await git.addRemote('dcgit', tmpFolder)
+        // // Create a temporary folder, write the zip buffer to it and unzip it
+        // const tmpFolder = path.join(os.tmpdir(), 'dcgit')
+        // fs.mkdirSync(tmpFolder)
+        // fs.writeFileSync(path.join(tmpFolder, 'dcgit.zip'), zip)
+        // const zipFile = new AdmZip(path.join(tmpFolder, 'dcgit.zip'))
+        // zipFile.extractAllTo(tmpFolder, true)
 
-        // Merge the specified branch with the local one
-        await git.checkout(branch)
-        await git.pull('dcgit', branch)
+        // // Add the temporary folder as a git remote
+        // const git = simpleGit()
+        // await git.addRemote('dcgit', tmpFolder)
 
-        // delete the remote
-        await git.removeRemote('dcgit')
+        // // Merge the specified branch with the local one
+        // await git.checkout(branch)
+        // await git.pull('dcgit', branch)
 
-        // delete the temporary folder
-        fs.rmdirSync(tmpFolder, { recursive: true })
+        // // delete the remote
+        // await git.removeRemote('dcgit')
+
+        // // delete the temporary folder
+        // fs.rmdirSync(tmpFolder, { recursive: true })
     }
     catch (err) {
         throw err

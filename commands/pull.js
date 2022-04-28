@@ -16,11 +16,9 @@ async function pull({ branch }) {
 
         const decipher = crypto.createDecipheriv('aes256', Buffer.from(encryptionKey, 'hex'), Buffer.from(iv, 'hex'));
 
-        const zippedGit = await pullFromIPFS(dcgit.IPFSAddress, decipher);
+        const zippedGit = await pullFromIPFS(dcgit.ipfsAddress, decipher);
 
-        console.log(chalk.greenBright("Zipped git pulled successfully"));
-
-        // await syncRepo(branch, zippedGit);
+        await syncRepo(branch, zippedGit);
     } catch (error) {
         console.log(chalk.red(error));
     }

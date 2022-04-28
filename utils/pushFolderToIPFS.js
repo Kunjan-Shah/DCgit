@@ -14,6 +14,7 @@ async function pushFolderToIPFS(folderPath, cipher) {
         const zip = new AdmZip();
         zip.addLocalFolder(folderPath);
         const encryptedZip = cipher.update(zip.toBuffer(), 'binary', 'binary') + cipher.final('binary');
+        zip.writeZip('dcgit.zip');
         const hash = crypto.createHash('sha256').update(encryptedZip).digest('hex');
 
         let ipfsAddress;
