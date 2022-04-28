@@ -2,11 +2,10 @@ const fs = require('fs');
 const web3 = require('web3');
 const crypto = require('crypto');
 const chalk = require('chalk');
-const AdmZip = require('adm-zip');
-const { exec } = require('child_process');
-const publicKeyEncryption = require('./encryptWithPublicKey');
+const publicKeyEncryption = require('../utils/encryptWithPublicKey');
+const pushToIPFS = require('../utils/pushFolderToIPFS');
 
-function init() {
+async function init() {
   // load dcgit.json
   const dcgit = JSON.parse(fs.readFileSync('./dcgit.json', 'utf8'));
 
@@ -22,34 +21,12 @@ function init() {
   dcgit.encryptedKey = encryptedKey;
   dcgit.encrytedIV = encryptedIV;
 
-  // zip the .git folder
-  const zip = new AdmZip();
-
-  zip.addLocalFolder('./.git'); // use "git reset --hard" to recover the repo
-
-  // encrypt the zip file with encryption key
   const cipher = crypto.createCipheriv('aes256', encryptionKey, iv);
-  const encryptedZip = cipher.update(zip.toBuffer(), 'binary', 'binary') + cipher.final('binary');;
+  const { ipfsAddress, integrity } = await pushToIPFS('./.git', cipher);
+  dcgit.ipfsAddress = ipfsAddress;
+  dcgit.integrity = integrity;
 
-  // add the SHA256 hash of the encrypted zip file to dcgit.json
-  dcgit.integrity = crypto.createHash('sha256').update(encryptedZip).digest('hex');
-
-  // write dcgit.json and encrypted zip file to the repo
   fs.writeFileSync('./dcgit.json', JSON.stringify(dcgit));
-  fs.writeFileSync('./dcgit.zip', encryptedZip);
-
-  // push the dcgit.zip to IPFS and get the IPFS hash to be stored in dcgit.json
-  console.log(chalk.greenBright('Pushing dcgit.zip to IPFS...'));
-  exec('ipfs add dcgit.zip', (err, stdout, stderr) => {
-    if (err) {
-      console.log(chalk.redBright('Failed to push dcgit.zip to IPFS'));
-      return;
-    }
-    const ipfsHash = stdout.split(' ')[1];
-    dcgit.ipfsHash = ipfsHash;
-    fs.writeFileSync('./dcgit.json', JSON.stringify(dcgit));
-    console.log(chalk.greenBright('Successfully pushed dcgit.zip to IPFS'));
-  });
 
   console.log(chalk.greenBright("DCgit repo initialized successfully"));
   //   ethereum.request({ method: "eth_requestAccounts" });
