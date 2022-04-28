@@ -1,6 +1,7 @@
 const crypto = require('crypto')
-const IPFS = require('ipfs-core')
-const AdmZip = require('adm-zip')
+const AdmZip = require('adm-zip');
+const ipfsAPI = require('ipfs-api');
+const util = require('util');
 
 /**
  * Zips and pushes a folder to IPFS, encrpyting it with the given cipher, returns its IPFS address and SHA256 hash
@@ -9,23 +10,27 @@ const AdmZip = require('adm-zip')
  * @returns {Promise<{ipfsAddress: string, integrity: string}>}
  */
 async function pushFolderToIPFS(folderPath, cipher) {
-    const zip = new AdmZip();
-    zip.addLocalFolder(folderPath);
-    const encryptedZip = cipher.update(zip.toBuffer(), 'binary', 'binary') + cipher.final('binary');
-    const hash = crypto.createHash('sha256').update(encryptedZip).digest('hex');
+    try {
+        const zip = new AdmZip();
+        zip.addLocalFolder(folderPath);
+        const encryptedZip = cipher.update(zip.toBuffer(), 'binary', 'binary') + cipher.final('binary');
+        const hash = crypto.createHash('sha256').update(encryptedZip).digest('hex');
 
-    // save the encrypted zip file to IPFS
-    const node = await IPFS.create()
-    const { cid }  = await node.add({
-        path: 'dcgit.zip',
-        content: encryptedZip
-    })
+        let ipfsAddress;
 
-    await node.stop()
+        //Connceting to the ipfs network via infura gateway
+        const ipfs = ipfsAPI('ipfs.infura.io', '5001', { protocol: 'https' })
 
-    return {
-        ipfsAddress: cid.toString(),
-        integrity: hash
+        const fileAdd = util.promisify(ipfs.files.add)
+
+        const file = await fileAdd(Buffer.from(encryptedZip, 'binary'))
+
+        return {
+            ipfsAddress: file[0].hash,
+            integrity: hash
+        }
+    } catch (error) {
+        console.log(error)
     }
 }
 

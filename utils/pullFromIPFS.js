@@ -1,4 +1,5 @@
-const IPFS = require('ipfs-core')
+const util = require('util');
+const AdmZip = require('adm-zip');
 
 /**
  * Retrieves a file from IPFS and decrypts it with decipher
@@ -7,11 +8,16 @@ const IPFS = require('ipfs-core')
  * @returns {Promise<Buffer>}
  */
 async function pullFromIPFS(ipfsAddress, decipher) {
-    const node = await IPFS.create()
-    const { content } = await node.cat(ipfsAddress)
-    const decryptedContent = decipher.update(content, 'binary', 'binary') + decipher.final('binary');
-    await node.stop()
-    return Buffer.from(decryptedContent)
+    //Connceting to the ipfs network via infura gateway
+    const ipfs = ipfsAPI('ipfs.infura.io', '5001', { protocol: 'https' })
+
+    ipfs.files.get(validCID, function (err, files) {
+        files.forEach((file) => {
+          console.log(file.path)
+          console.log(file.content.toString('utf8'))
+        })
+    })
+    return "TODO"
 }
 
-module.exports = pullFromIPFS
+module.exports  = pullFromIPFS

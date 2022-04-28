@@ -1,10 +1,13 @@
 const EthCrypto = require('eth-crypto');
 
+/**
+ * 
+ * @param {String} privateKey 
+ * @param {String} data 
+ * @returns {String} encrypted data
+ */
 async function privateKeyDecryption(privateKey, data) {
-    console.log({data});
     const encryptedObject = EthCrypto.cipher.parse(data);
-
-    console.log({ encryptedObject })
 
     const decrypted = await EthCrypto.decryptWithPrivateKey(
         privateKey,

@@ -3,74 +3,80 @@ const web3 = require('web3');
 const crypto = require('crypto');
 const chalk = require('chalk');
 const publicKeyEncryption = require('../utils/encryptWithPublicKey');
-const pushToIPFS = require('../utils/pushFolderToIPFS');
+const pushFolderToIPFS = require('../utils/pushFolderToIPFS');
 
 async function init() {
-  // load dcgit.json
-  const dcgit = JSON.parse(fs.readFileSync('./dcgit.json', 'utf8'));
+  try {
+    // Load user data file
+    const dcgit = JSON.parse(await fs.promises.readFile('.dcgit.json', 'utf8'));
 
-  // 1. Generate a 256 bit symmetric encrytion key and initialization vector
-  const encryptionKey = crypto.randomBytes(32);
-  const iv = crypto.randomBytes(16);
+    // Generate a 256 bit symmetric encrytion key and initialization vector
+    const encryptionKey = crypto.randomBytes(32);
+    const iv = crypto.randomBytes(16);
 
-  // encrypt the key with the user's public key
-  const encryptedKey = await publicKeyEncryption(dcgit.userPublicKey, encryptionKey.toString('hex'));
-  const encryptedIV = await publicKeyEncryption(dcgit.userPublicKey, iv.toString('hex'));
+    // encrypt the key with the user's public key
+    const encryptedKey = await publicKeyEncryption(dcgit.userPublicKey, encryptionKey.toString('hex'));
+    const encryptedIV = await publicKeyEncryption(dcgit.userPublicKey, iv.toString('hex'));
 
-  // add the encrypted key to dcgit.json
-  dcgit.encryptedKey = encryptedKey;
-  dcgit.encrytedIV = encryptedIV;
+    // add the encrypted key to dcgit.json
+    dcgit.encryptedKey = encryptedKey;
+    dcgit.encryptedIV = encryptedIV;
 
-  const cipher = crypto.createCipheriv('aes256', encryptionKey, iv);
-  const { ipfsAddress, integrity } = await pushToIPFS('./.git', cipher);
-  dcgit.ipfsAddress = ipfsAddress;
-  dcgit.integrity = integrity;
+    const cipher = crypto.createCipheriv('aes256', encryptionKey, iv);
+    const { ipfsAddress, integrity } = await pushFolderToIPFS('./.git', cipher);
+    dcgit.ipfsAddress = ipfsAddress;
+    dcgit.integrity = integrity;
 
-  fs.writeFileSync('./dcgit.json', JSON.stringify(dcgit));
+    console.log({ ipfsAddress, integrity });
 
-  console.log(chalk.greenBright("DCgit repo initialized successfully"));
-  //   ethereum.request({ method: "eth_requestAccounts" });
+    await fs.promises.writeFile('.dcgit.json', JSON.stringify(dcgit));
 
-  //   const rpcURL = "https://rinkeby.infura.io/v3/49cc660be5284f6485525762167b6f74";
-  //   const web3 = new Web3(rpcURL);
-  //   let account;
+    console.log(chalk.greenBright("DCgit repo initialized successfully"));
+    //   ethereum.request({ method: "eth_requestAccounts" });
 
-  //    // here is our contract Address, which we grabbed from Remix
-  // let contractAddress = '0xA6ebEcc8d075Eb5301452358e0cBF7c8Ae69d857';
+    //   const rpcURL = "https://rinkeby.infura.io/v3/49cc660be5284f6485525762167b6f74";
+    //   const web3 = new Web3(rpcURL);
+    //   let account;
+
+    //    // here is our contract Address, which we grabbed from Remix
+    // let contractAddress = '0xA6ebEcc8d075Eb5301452358e0cBF7c8Ae69d857';
 
 
-  // // here is our function to make our smart contract call! window.ethereum.selectedAddress is our connected metamask account,
-  // // contract address is the one we deployed
-  // // value is 0 because we are not putting any arguments to this function call
-  // // gasPrice is 0 because a read function in solidity does not cost gas
-  // // gas has to have a minumum of 21064, when making read only function calls, but no gas is actually consumed
-  // // data is our function hash from our complication details in Remix
-  // // notice that our paramaters must be in Hexadecimal
-  // // finnaly, our result is changed into a number with the web3 utility method, otherwise our result would be a hexadecimal
+    // // here is our function to make our smart contract call! window.ethereum.selectedAddress is our connected metamask account,
+    // // contract address is the one we deployed
+    // // value is 0 because we are not putting any arguments to this function call
+    // // gasPrice is 0 because a read function in solidity does not cost gas
+    // // gas has to have a minumum of 21064, when making read only function calls, but no gas is actually consumed
+    // // data is our function hash from our complication details in Remix
+    // // notice that our paramaters must be in Hexadecimal
+    // // finnaly, our result is changed into a number with the web3 utility method, otherwise our result would be a hexadecimal
 
-  // const handleClick = async () => {
-  //     let account = window.ethereum.selectedAddress
-  //         window.ethereum
-  //           .request({
-  //             method: 'eth_call',
-  //             params: [
-  //               {
-  //                 from: account,
-  //                 to: contractAddress,
-  //                 value: '0x0',
-  //                 gasPrice: '0x0',
-  //                 gas: '0x30000',
-  //                 data: '0x2e64cec1'
-  //               },
-  //             ],
-  //           })
-  //           .then((result) => {
-  //             console.log (web3.utils.hexToNumber(result))
-  //             }).catch((error) => {
-  //               console.log(error)
-  //             })}
+    // const handleClick = async () => {
+    //     let account = window.ethereum.selectedAddress
+    //         window.ethereum
+    //           .request({
+    //             method: 'eth_call',
+    //             params: [
+    //               {
+    //                 from: account,
+    //                 to: contractAddress,
+    //                 value: '0x0',
+    //                 gasPrice: '0x0',
+    //                 gas: '0x30000',
+    //                 data: '0x2e64cec1'
+    //               },
+    //             ],
+    //           })
+    //           .then((result) => {
+    //             console.log (web3.utils.hexToNumber(result))
+    //             }).catch((error) => {
+    //               console.log(error)
+    //             })}
 
-  //   console.log(chalk.greenBright("DCgit repo initialized successfully"));
+    //   console.log(chalk.greenBright("DCgit repo initialized successfully"));
+  } catch (error) {
+    console.log(chalk.red(error));
+  }
 }
 
 module.exports = init;
