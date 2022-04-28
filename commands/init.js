@@ -14,8 +14,8 @@ async function init() {
   const iv = crypto.randomBytes(16);
 
   // encrypt the key with the user's public key
-  const encryptedKey = publicKeyEncryption(dcgit.userPublicKey, encryptionKey);
-  const encryptedIV = publicKeyEncryption(dcgit.userPublicKey, iv);
+  const encryptedKey = await publicKeyEncryption(dcgit.userPublicKey, encryptionKey.toString('hex'));
+  const encryptedIV = await publicKeyEncryption(dcgit.userPublicKey, iv.toString('hex'));
 
   // add the encrypted key to dcgit.json
   dcgit.encryptedKey = encryptedKey;

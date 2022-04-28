@@ -20,6 +20,7 @@
     "chalk": "^4.1.2",
     "commander": "^9.2.0",
     "conf": "^10.1.2",
+    "eth-crypto": "^2.3.0",
     "eth-ecies": "^1.0.6",
     "ethereumjs-util": "^7.1.4",
     "ethereumjs-wallet": "^1.0.2",

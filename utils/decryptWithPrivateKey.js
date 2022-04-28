@@ -1,12 +1,17 @@
-const ethEcies = require("eth-ecies");
+const EthCrypto = require('eth-crypto');
 
-function privateKeyDecryption(privateKey, data) {
-    const userPrivateKey = new Buffer(String(privateKey), 'hex');
-    const bufferData = new Buffer(String(data), 'hex');
+async function privateKeyDecryption(privateKey, data) {
+    console.log({data});
+    const encryptedObject = EthCrypto.cipher.parse(data);
 
-    const encryptedData = ethEcies.decrypt(userPrivateKey, bufferData);
+    console.log({ encryptedObject })
 
-    return encryptedData.toString('base64')
+    const decrypted = await EthCrypto.decryptWithPrivateKey(
+        privateKey,
+        encryptedObject
+    );
+
+    return decrypted;
 }
 
 module.exports = privateKeyDecryption;

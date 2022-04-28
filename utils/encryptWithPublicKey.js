@@ -1,12 +1,12 @@
-const ethEcies = require('eth-ecies');
+const EthCrypto = require('eth-crypto');
 
-function publicKeyEncryption(publicKey, data) {
-    const userPublicKey = new Buffer(String(publicKey), 'hex');
-    const bufferData = new Buffer(String(data), 'hex');
+async function publicKeyEncryption(publicKey, data) {
+    const encrypted = await EthCrypto.encryptWithPublicKey(
+        publicKey,
+        data
+    );
 
-    const encryptedData = ethEcies.encrypt(userPublicKey, bufferData);
-
-    return encryptedData.toString('base64')
+    return EthCrypto.cipher.stringify(encrypted);
 }
 
 module.exports = publicKeyEncryption;
