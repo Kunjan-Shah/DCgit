@@ -16,7 +16,6 @@ async function pullFromIPFS(ipfsAddress, decipher) {
 
     const file = await fileGet(ipfsAddress)
 
-
     const zippedGit = decipher.update(file[0].content, 'binary', 'binary') + decipher.final('binary');
 
     return zippedGit

@@ -38,7 +38,7 @@ async function syncRepo(branch, zip) {
         // delete the remote
         await git.removeRemote('dcgit')
 
-        // delete the temporary foldefr
+        // delete the temporary folder
         fs.rm(path.join(tempFolder), { recursive: true })
     }
     catch (err) {
