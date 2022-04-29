@@ -2,6 +2,7 @@ const path = require('path')
 const fs = require('fs')
 const os = require('os')
 const simpleGit = require('simple-git');
+const AdmZip = require('adm-zip');
 
 /**
  * Takes the zipped .git folder and merges the specified branch with the local one
@@ -10,29 +11,35 @@ const simpleGit = require('simple-git');
  */
 async function syncRepo(branch, zip) {
     try {
+        console.log(`Syncing repo with branch ${branch}`)
         // in the local directory, we create a .tmp folder and save the zip file there
         fs.writeFileSync(path.join('.', 'dcgit-pulled.zip'), zip.toString('binary'), 'binary');
 
-        // // Create a temporary folder, write the zip buffer to it and unzip it
-        // const tmpFolder = path.join(os.tmpdir(), 'dcgit')
-        // fs.mkdirSync(tmpFolder)
-        // fs.writeFileSync(path.join(tmpFolder, 'dcgit.zip'), zip)
-        // const zipFile = new AdmZip(path.join(tmpFolder, 'dcgit.zip'))
-        // zipFile.extractAllTo(tmpFolder, true)
+        const tempFolder = '.tmp-dcgit'
 
-        // // Add the temporary folder as a git remote
-        // const git = simpleGit()
-        // await git.addRemote('dcgit', tmpFolder)
+        // create a folder call .dcgit
+        fs.mkdirSync(tempFolder);
+        fs.mkdirSync(path.join(tempFolder, '.git'));
 
-        // // Merge the specified branch with the local one
-        // await git.checkout(branch)
-        // await git.pull('dcgit', branch)
+        // unzip the zip file
+        const zipFile = new AdmZip(path.join('.', 'dcgit-pulled.zip'));
+        zipFile.extractAllTo(path.join('.', tempFolder, '.git'), true);
 
-        // // delete the remote
-        // await git.removeRemote('dcgit')
+        // Add the temporary folder as a git remote
+        const git = simpleGit()
+        await git.addRemote('dcgit', path.join('.', tempFolder));
 
-        // // delete the temporary folder
-        // fs.rmdirSync(tmpFolder, { recursive: true })
+        // Merge the specified branch with the local one
+        await git.fetch('dcgit', branch)
+        await git.pull('dcgit', branch)
+
+        await git.checkout(branch)
+
+        // delete the remote
+        await git.removeRemote('dcgit')
+
+        // delete the temporary foldefr
+        fs.rm(path.join(tempFolder), { recursive: true })
     }
     catch (err) {
         throw err
