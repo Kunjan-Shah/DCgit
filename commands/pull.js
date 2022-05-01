@@ -4,6 +4,7 @@ const chalk = require('chalk');
 const privateKeyDecryption = require('../utils/decryptWithPrivateKey');
 const pullFromIPFS = require('../utils/pullFromIPFS')
 const syncRepo = require('../utils/syncRepo')
+const getRepoInfo = require('../smart_contract/getRepoInfo')
 
 async function pull({ branch }) {
     try {
@@ -15,7 +16,11 @@ async function pull({ branch }) {
         const iv = await privateKeyDecryption(dcgit.userPrivateKey, dcgit.encryptedIV);
 
         const decipher = crypto.createDecipheriv('aes256', Buffer.from(encryptionKey, 'hex'), Buffer.from(iv, 'hex'));
+        
         // TODO: call getRepoInfo --> storage_adress, integrity update in .dcgit.json
+        const updatedRepoData = await getRepoInfo(dcgit.uuid);
+        console.log(updatedRepoData);
+
         const zippedGit = await pullFromIPFS(dcgit.ipfsAddress, decipher);
 
         await syncRepo(branch, zippedGit);
