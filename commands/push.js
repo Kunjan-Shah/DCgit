@@ -1,13 +1,26 @@
-const chalk = require('chalk')
+const fs = require('fs');
+const web3 = require('web3');
+const crypto = require('crypto');
+const chalk = require('chalk');
+const privateKeyDecryption = require('../utils/decryptWithPrivateKey');
+const pushFolderToIPFS = require('../utils/pushFolderToIPFS');
 
-function push() {
-    /******* TODO *********/
-    // check before pushing if the state is ready to be pushed or not. If not, throw error
-    // get repo "uuid" from .dcgit
-    // encrypt repo with changes and push to IPFS and get new "storage_address"
-    // generate new "integrity"
-    // call push_to_repo(uuid, storage_address, integrity)
-    // Error handling
+async function push() {
+    // load dcgit.json
+    const dcgit = JSON.parse(fs.readFileSync('./dcgit.json', 'utf8'));
+
+    const encryptionKey = privateKeyDecryption(dcgit.userPrivateKey, dcgit.encryptedKey);
+    const iv = privateKeyDecryption(dcgit.userPrivateKey, dcgit.encryptedIV);
+
+    // encrypt the zip file with encryption key
+    const cipher = crypto.createCipheriv('aes256', encryptionKey, iv);
+
+    const { ipfsAddress, integrity } = await pushFolderToIPFS('./.git', cipher);
+    dcgit.ipfsAddress = ipfsAddress;
+    dcgit.integrity = integrity;
+
+    // write dcgit.json and encrypted zip file to the repo
+    fs.writeFileSync('./dcgit.json', JSON.stringify(dcgit));
     console.log(chalk.greenBright("Pushed successfully"));
 }
 

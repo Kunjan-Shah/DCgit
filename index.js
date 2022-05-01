@@ -4,6 +4,7 @@ const setup = require("./commands/setup");
 const init = require("./commands/init");
 const permit = require("./commands/permit");
 const push = require('./commands/push.js');
+const pull = require('./commands/pull.js');
 
 /************************* Instruction to run the code ***********************************/
 /*   run npm i -g to install the cli named "dcgit"
@@ -37,5 +38,11 @@ program
     .description('Push the repo')
     .action(push)
 
-export const SMART_CONTRACT_ID = '0x568c93913ad26bf8773e769c3f7ec8c3b85fb18f298503fcdc123b670dc5566a';
+program
+    .command('pull')
+    .description('Pull the changes to the repo to the specified branch')
+    .requiredOption('-b, --branch <branch>', 'The branch to which you want to pull the changes')
+    .action(pull)
+
+
 program.parse();
