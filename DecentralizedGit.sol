@@ -3,10 +3,11 @@
 pragma solidity ^0.8.13;
 
 contract GitRepoContract {
-    Repo[] private repositories;
+    // Repo[] private repositories;
+    mapping(string => Repo) repositories;
     // The keys will be encrypted using public key of reciever
-    mapping(uint256 => mapping(address => Key)) public keys;
-    mapping(uint256 => mapping(address => Permissions)) public userPermissions;
+    mapping(string => mapping(address => Key)) public keys;
+    mapping(string => mapping(address => Permissions)) public userPermissions;
 
     enum Permissions {
             None,
@@ -16,7 +17,7 @@ contract GitRepoContract {
             Admin
     }
     struct Repo {
-        uint256 uuid;
+        string uuid;
         string storage_address;
         string integrity;  // SHA256 hash of the file, to verify if stored repo is intact
     }
@@ -26,24 +27,21 @@ contract GitRepoContract {
         string iv;
     }
 
-    function initializeRepo(string memory _storage_address, string calldata _integrity, string calldata _key, string calldata _iv) public returns (uint256 uuid){
-        uint256 _uuid = repositories.length;
-        repositories.push(Repo({
+    function initializeRepo(string calldata _uuid, string calldata _storage_address, string calldata _integrity, string calldata _key, string calldata _iv) public {
+        repositories[_uuid] = Repo({
             uuid: _uuid,
             storage_address: _storage_address,
             integrity: _integrity
-        }));
+        });
 
         userPermissions[_uuid][msg.sender] = Permissions.Admin;
         keys[_uuid][msg.sender] = Key({
             key: _key,
             iv: _iv
         });
-
-        return uuid;
     }
 
-    function grantAccess(uint256 _uuid, address _address, Permissions _role, string calldata _key, string calldata _iv) public {
+    function grantAccess(string calldata _uuid, address _address, Permissions _role, string calldata _key, string calldata _iv) public {
         // check if caller is Admin
         require(userPermissions[_uuid][msg.sender] == Permissions.Admin);
 
@@ -56,7 +54,7 @@ contract GitRepoContract {
         });
     }
 
-    function pushToRepo(uint256 _uuid, string memory _storage_address, string calldata _integrity) public {
+    function pushToRepo(string calldata _uuid, string calldata _storage_address, string calldata _integrity) public {
         // check if user has writer or admin permission
         require(
             userPermissions[_uuid][msg.sender] == Permissions.Admin || 
@@ -67,12 +65,12 @@ contract GitRepoContract {
         repositories[_uuid].integrity = _integrity;
     }
 
-    function getRepoInfo(uint256 _uuid) public view returns (string memory storage_address, string memory integrity){
+    function getRepoInfo(string calldata _uuid) public view returns (string memory storage_address, string memory integrity, string memory iv, string memory key){
         require(
             userPermissions[_uuid][msg.sender] == Permissions.Admin || 
             userPermissions[_uuid][msg.sender] == Permissions.Writer ||
             userPermissions[_uuid][msg.sender] == Permissions.Reader
         );
-        return (repositories[_uuid].storage_address, repositories[_uuid].integrity);
+        return (repositories[_uuid].storage_address, repositories[_uuid].integrity, keys[_uuid][msg.sender].iv, keys[_uuid][msg.sender].key);
     }
 }
