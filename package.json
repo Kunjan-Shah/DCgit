@@ -16,6 +16,7 @@
   "author": "Kunjan Shah, Pratham Gupta",
   "license": "ISC",
   "dependencies": {
+    "@truffle/hdwallet-provider": "^2.0.8",
     "adm-zip": "^0.5.9",
     "chalk": "^4.1.2",
     "commander": "^9.2.0",
@@ -28,7 +29,8 @@
     "ipfs-api": "^26.1.2",
     "ipfs-core": "^0.14.3",
     "simple-git": "^3.7.1",
-    "web3": "^1.7.3"
+    "web3": "^1.7.3",
+    "web3-eth-contract": "^1.7.3"
   },
   "type": "commonjs"
 }
