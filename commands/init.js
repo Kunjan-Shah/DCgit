@@ -44,7 +44,7 @@ async function init() {
     console.log(chalk.greenBright("DCgit repo initialized successfully"));
     console.log("Calling Smart Contract for initialize repo");
 
-    const spinner = ora('Loading unicorns').start();
+    var spinner = ora('Loading unicorns').start();
     spinner.color = 'blue';
     spinner.text = 'Please wait while ethereum processes your transaction';
 
@@ -61,6 +61,7 @@ async function init() {
     spinner.stop();
     console.log(chalk.greenBright("Repo initialized successfully"));
   } catch (error) {
+    spinner.stop();
     console.log(chalk.red(error));
   }
 }
