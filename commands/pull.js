@@ -11,8 +11,8 @@ async function pull({ branch }) {
         const dcgit = JSON.parse(fs.readFileSync('.dcgit.json', 'utf8'));
 
         // create the decipher by decrypting the encryption key and IV
-        const encryptionKey = await privateKeyDecryption(dcgit.userPrivateKey, dcgit.encryptedKey);
-        const iv = await privateKeyDecryption(dcgit.userPrivateKey, dcgit.encryptedIV);
+        const encryptionKey = dcgit.key;
+        const iv = dcgit.iv;
 
         const decipher = crypto.createDecipheriv('aes256', Buffer.from(encryptionKey, 'hex'), Buffer.from(iv, 'hex'));
         // TODO: call getRepoInfo --> storage_adress, integrity update in .dcgit.json
