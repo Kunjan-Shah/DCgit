@@ -1,7 +1,7 @@
 const fs = require('fs');
 const crypto = require('crypto');
 const chalk = require('chalk');
-const loading =  require('loading-cli');
+const ora = require('ora-classic');
 const privateKeyDecryption = require('../utils/decryptWithPrivateKey');
 const pushFolderToIPFS = require('../utils/pushFolderToIPFS');
 const { contractInstance, web3, contractAddress } = require('../contract');
@@ -24,10 +24,9 @@ async function push() {
     // TODO: call pushToRepo
     console.log("Calling Smart Contract for pushing repo");
 
-    const load = loading("loading text!!").start()
-    load.color = 'yellow';
-    load.text = 'Please wait while we process your transaction\n';
-
+    const spinner = ora('Loading unicorns').start();
+    spinner.color = 'blue';
+    spinner.text = 'Please wait while ethereum processes your transaction';
     encoded = contractInstance.methods.pushToRepo(dcgit.uuid, ipfsAddress, integrity).encodeABI()
 
     const tx = {
@@ -40,10 +39,8 @@ async function push() {
     await web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', console.log)
     // write dcgit.json and encrypted zip file to the repo
     fs.writeFileSync('./.dcgit.json', JSON.stringify(dcgit));
-    
-    // stop loader
-    load.stop()
-
+  
+    spinner.stop();
     console.log(chalk.greenBright("Pushed successfully"));
 }
 
