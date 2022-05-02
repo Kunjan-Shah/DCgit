@@ -26,8 +26,8 @@ async function init() {
     const encryptedIV = await publicKeyEncryption(dcgit.userPublicKey, iv.toString('hex'));
 
     // add the encrypted key to dcgit.json
-    dcgit.encryptedKey = encryptedKey;
-    dcgit.encryptedIV = encryptedIV;
+    dcgit.key = encryptionKey.toString('hex');
+    dcgit.iv = iv.toString('hex');
 
     // push encrypted repo to IPFS
     const cipher = crypto.createCipheriv('aes256', encryptionKey, iv);
