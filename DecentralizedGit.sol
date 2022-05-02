@@ -3,7 +3,7 @@
 pragma solidity ^0.8.13;
 
 contract GitRepoContract {
-    mapping(string => Repo) repositories;
+    mapping(string => Repo) public repositories;
     // The keys will be encrypted using public key of reciever
     mapping(string => mapping(address => Key)) public keys;
     mapping(string => mapping(address => Permissions)) public userPermissions;
@@ -62,9 +62,5 @@ contract GitRepoContract {
 
         repositories[_uuid].storage_address = _storage_address;
         repositories[_uuid].integrity = _integrity;
-    }
-
-    function getRepoInfo(string calldata _uuid) public view returns (string memory storage_address, string memory integrity){
-        return (repositories[_uuid].storage_address, repositories[_uuid].integrity);
     }
 }

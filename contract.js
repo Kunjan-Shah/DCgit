@@ -1,6 +1,6 @@
 const Web3 = require('web3');
 
-const contractAddress = '0x008fdc05cd068273c7b124ba70f79d05b96c3960';
+const contractAddress = '0x14c71bc7dc49aa44723640d37d10fedc668ad72b';
 const contractABI = [
 	{
 		"inputs": [
@@ -174,7 +174,7 @@ const contractABI = [
 		"type": "function"
 	}
 ];
-const rpcURL = "https://rinkeby.infura.io/v3/49cc660be5284f6485525762167b6f74";
+const rpcURL = "https://goerli.infura.io/v3/84afcc18a6904bfe9557d4431bbbdade" //"https://rinkeby.infura.io/v3/49cc660be5284f6485525762167b6f74";
 
 // var provider = new Provider(developerPrivateKey, rpcURL);
 const web3 = new Web3(new Web3.providers.HttpProvider(rpcURL))
