@@ -15,21 +15,28 @@ async function cloneRepo(zip) {
         fs.writeFileSync(path.join('.', 'dcgit-pulled.zip'), zip.toString('binary'), 'binary');
 
         const tempFolder = '.tmp-dcgit'
+        if(fs.existsSync(tempFolder)) {
+            await fs.rm(path.join(tempFolder), { recursive: true })
+        }
 
         // create a folder call .dcgit
         fs.mkdirSync(tempFolder);
         fs.mkdirSync(path.join(tempFolder, '.git'));
+        console.log("unzipping......")
 
         // unzip the zip file
         const zipFile = new AdmZip(path.join('.', 'dcgit-pulled.zip'));
         zipFile.extractAllTo(path.join('.', tempFolder, '.git'), true);
 
+        console.log('unzip done')
+
         // Add the temporary folder as a git remote
         const git = simpleGit()
-        await git.clone(path.join('.', tempFolder));
+        fs.mkdirSync('newRepo')
+        await git.clone(path.join('.', tempFolder), path.join('.', 'newRepo'));
 
         // delete the temporary folder
-        fs.rm(path.join(tempFolder), { recursive: true })
+        // fs.rm(path.join(tempFolder), { recursive: true })
     }
     catch (err) {
         throw err

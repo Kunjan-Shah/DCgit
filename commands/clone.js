@@ -5,6 +5,7 @@ const { contractInstance, web3, contractAddress } = require('../contract');
 const privateKeyDecryption = require('../utils/decryptWithPrivateKey');
 const pullFromIPFS = require('../utils/pullFromIPFS')
 const syncRepo = require('../utils/syncRepo')
+const cloneRepo = require('../utils/cloneRepo')
 
 async function clone({ uuid }) {
     try {
@@ -32,9 +33,9 @@ async function clone({ uuid }) {
         const decipher = crypto.createDecipheriv('aes256', Buffer.from(encryptionKey, 'hex'), Buffer.from(iv, 'hex'));
 
         const zippedGit = await pullFromIPFS(dcgit.ipfsAddress, decipher);
-
+        console.log("comes here");
         await cloneRepo(zippedGit);
-
+        console.log("comes here 2");
         await fs.promises.writeFile('.dcgit.json', JSON.stringify(dcgit));
 
         console.log(chalk.greenBright("Repo cloned successfully"));
