@@ -19,7 +19,7 @@ async function push() {
     const { ipfsAddress, integrity } = await pushFolderToIPFS('./.git', cipher);
     dcgit.ipfsAddress = ipfsAddress;
     dcgit.integrity = integrity;
-
+    // TODO: call pushToRepo
     // write dcgit.json and encrypted zip file to the repo
     fs.writeFileSync('./.dcgit.json', JSON.stringify(dcgit));
     console.log(chalk.greenBright("Pushed successfully"));
