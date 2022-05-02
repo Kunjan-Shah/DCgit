@@ -27,6 +27,7 @@ async function push() {
     const spinner = ora('Loading unicorns').start();
     spinner.color = 'blue';
     spinner.text = 'Please wait while ethereum processes your transaction';
+    
     encoded = contractInstance.methods.pushToRepo(dcgit.uuid, ipfsAddress, integrity).encodeABI()
 
     const tx = {
