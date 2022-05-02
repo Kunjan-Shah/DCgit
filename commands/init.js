@@ -2,6 +2,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const chalk = require('chalk');
 const publicKeyEncryption = require('../utils/encryptWithPublicKey');
+const ora = require('ora-classic');
 const pushFolderToIPFS = require('../utils/pushFolderToIPFS');
 const { randomUUID } = require('crypto'); // Added in: node v14.17.0
 const { contractInstance, web3, contractAddress } = require('../contract');
@@ -29,6 +30,7 @@ async function init() {
     dcgit.key = encryptionKey.toString('hex');
     dcgit.iv = iv.toString('hex');
 
+    // push encrypted repo to IPFS
     const cipher = crypto.createCipheriv('aes256', encryptionKey, iv);
     const { ipfsAddress, integrity } = await pushFolderToIPFS('./.git', cipher);
     dcgit.ipfsAddress = ipfsAddress;
@@ -42,6 +44,10 @@ async function init() {
     console.log(chalk.greenBright("DCgit repo initialized successfully"));
     console.log("Calling Smart Contract for initialize repo");
 
+    const spinner = ora('Loading unicorns').start();
+    spinner.color = 'blue';
+    spinner.text = 'Please wait while ethereum processes your transaction';
+
     encoded = contractInstance.methods.initializeRepo(uuid, ipfsAddress, integrity, encryptedKey, encryptedIV).encodeABI()
 
     const tx = {
@@ -51,7 +57,9 @@ async function init() {
     }
 
     const signed = await web3.eth.accounts.signTransaction(tx, dcgit.userPrivateKey)
-    web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', console.log)
+    await web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', console.log);
+    spinner.stop();
+    console.log(chalk.greenBright("Repo initialized successfully"));
   } catch (error) {
     console.log(chalk.red(error));
   }

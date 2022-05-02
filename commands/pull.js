@@ -4,6 +4,7 @@ const chalk = require('chalk');
 const { contractInstance, web3, contractAddress } = require('../contract');
 const pullFromIPFS = require('../utils/pullFromIPFS')
 const syncRepo = require('../utils/syncRepo')
+const getRepoInfo = require('../smart_contract/getRepoInfo')
 
 async function pull({ branch }) {
     try {

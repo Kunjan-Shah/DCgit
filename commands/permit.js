@@ -1,6 +1,7 @@
 const fs = require('fs')
 const chalk = require('chalk');
 const EthCrypto = require('eth-crypto');
+const ora = require('ora-classic');
 const publicKeyEncryption = require('../utils/encryptWithPublicKey');
 const { contractInstance, web3, contractAddress } = require('../contract');
 
@@ -37,6 +38,10 @@ async function permit({ role, identity }) {
 
         console.log("Calling Smart Contract for Granting Access");
 
+        const spinner = ora('Loading unicorns').start();
+        spinner.color = 'blue';
+        spinner.text = 'Please wait while ethereum processes your transaction'
+
         const encoded = contractInstance.methods.grantAccess(
             dcgit.uuid,
             EthCrypto.publicKey.toAddress(identity),
@@ -53,8 +58,9 @@ async function permit({ role, identity }) {
 
         const signed = await web3.eth.accounts.signTransaction(tx, dcgit.userPrivateKey)
         await web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', console.log)
-
-        console.log(chalk.greenBright("Permission added successfully successfully"));
+        
+        spinner.stop();
+        console.log(chalk.greenBright("Permission added successfully"));
     } catch (error) {
         console.log(chalk.red(error))
     }
