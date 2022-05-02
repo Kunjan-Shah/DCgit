@@ -43,4 +43,4 @@ async function clone({ uuid }) {
     }
 }
 
-module.exports = pull;
+module.exports = clone;
