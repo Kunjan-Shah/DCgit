@@ -59,7 +59,7 @@ async function init() {
     const signed = await web3.eth.accounts.signTransaction(tx, dcgit.userPrivateKey)
     await web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', console.log);
     spinner.stop();
-    console.log(chalk.greenBright("Repo initialized successfully"));
+    console.log(chalk.greenBright("Repo initialized successfully with uuid: " + uuid));
   } catch (error) {
     spinner.stop();
     console.log(chalk.red(error));

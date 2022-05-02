@@ -16,7 +16,9 @@ async function cloneRepo(zip) {
 
         const tempFolder = '.tmp-dcgit'
         if(fs.existsSync(tempFolder)) {
-            await fs.rm(path.join(tempFolder), { recursive: true })
+            await fs.promises.rm(path.join(tempFolder), { recursive: true }, (err) => {
+                if (err) throw err;
+            });
         }
 
         // create a folder call .dcgit
@@ -28,6 +30,9 @@ async function cloneRepo(zip) {
         const zipFile = new AdmZip(path.join('.', 'dcgit-pulled.zip'));
         zipFile.extractAllTo(path.join('.', tempFolder, '.git'), true);
 
+        // remove the zip file
+        fs.unlinkSync(path.join('.', 'dcgit-pulled.zip'));
+
         console.log('unzip done')
 
         // Add the temporary folder as a git remote
@@ -36,7 +41,15 @@ async function cloneRepo(zip) {
         await git.clone(path.join('.', tempFolder), path.join('.', 'newRepo'));
 
         // delete the temporary folder
-        // fs.rm(path.join(tempFolder), { recursive: true })
+        fs.rm(path.join(tempFolder), { recursive: true }, (err) => {
+            if (err) throw err;
+        });
+
+        // bring the contents (including folders) of the newRepo folder to the current folder
+        await fs.promises.cp(path.join('.', 'newRepo'), path.join('.'), { recursive: true })
+        fs.rmSync('newRepo', { recursive: true, force: true }, (err) => {
+            if (err) throw err;
+        });
     }
     catch (err) {
         throw err

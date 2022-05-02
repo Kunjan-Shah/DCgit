@@ -14,6 +14,8 @@ async function pull({ branch }) {
         const encryptionKey = dcgit.key;
         const iv = dcgit.iv;
 
+        console.log(encryptionKey, iv);
+
         // Retrieve the repo information from the smart contract
         const repo = await contractInstance.methods.repositories(dcgit.uuid).call();
 

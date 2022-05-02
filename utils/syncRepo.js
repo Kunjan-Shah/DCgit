@@ -16,6 +16,11 @@ async function syncRepo(branch, zip) {
         fs.writeFileSync(path.join('.', 'dcgit-pulled.zip'), zip.toString('binary'), 'binary');
 
         const tempFolder = '.tmp-dcgit'
+        if (fs.existsSync(tempFolder)) {
+            await fs.promises.rm(path.join(tempFolder), { recursive: true }, (err) => {
+                if (err) throw err;
+            });
+        }
 
         // create a folder call .dcgit
         fs.mkdirSync(tempFolder);
@@ -25,8 +30,12 @@ async function syncRepo(branch, zip) {
         const zipFile = new AdmZip(path.join('.', 'dcgit-pulled.zip'));
         zipFile.extractAllTo(path.join('.', tempFolder, '.git'), true);
 
+        // remove the zip file
+        fs.unlinkSync(path.join('.', 'dcgit-pulled.zip'));
+
         // Add the temporary folder as a git remote
         const git = simpleGit()
+
         await git.addRemote('dcgit', path.join('.', tempFolder));
 
         // Merge the specified branch with the local one
@@ -39,7 +48,9 @@ async function syncRepo(branch, zip) {
         await git.removeRemote('dcgit')
 
         // delete the temporary folder
-        fs.rm(path.join(tempFolder), { recursive: true })
+        fs.rm(path.join(tempFolder), { recursive: true }, (err) => {
+            if (err) throw err;
+        });
     }
     catch (err) {
         throw err

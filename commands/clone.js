@@ -22,6 +22,9 @@ async function clone({ uuid }) {
         const encryptionKey = await privateKeyDecryption(dcgit.userPrivateKey, keys.key);
         const iv = await privateKeyDecryption(dcgit.userPrivateKey, keys.iv);
 
+        dcgit.key = encryptionKey;
+        dcgit.iv = iv;
+
         // Retrieve the repo information from the smart contract
         const repo = await contractInstance.methods.repositories(dcgit.uuid).call();
 

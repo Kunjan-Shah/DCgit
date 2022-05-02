@@ -38,7 +38,7 @@ async function permit({ role, identity }) {
 
         console.log("Calling Smart Contract for Granting Access");
 
-        const spinner = ora('Loading unicorns').start();
+        var spinner = ora('Loading unicorns').start();
         spinner.color = 'blue';
         spinner.text = 'Please wait while ethereum processes your transaction'
 
@@ -62,6 +62,7 @@ async function permit({ role, identity }) {
         spinner.stop();
         console.log(chalk.greenBright("Permission added successfully"));
     } catch (error) {
+        spinner.stop();
         console.log(chalk.red(error))
     }
 }
