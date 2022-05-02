@@ -2,17 +2,24 @@ const fs = require('fs');
 const crypto = require('crypto');
 const chalk = require('chalk');
 const { contractInstance, web3, contractAddress } = require('../contract');
+const privateKeyDecryption = require('../utils/decryptWithPrivateKey');
 const pullFromIPFS = require('../utils/pullFromIPFS')
 const syncRepo = require('../utils/syncRepo')
 
-async function pull({ branch }) {
+async function clone({ uuid }) {
     try {
         // Load dcgit.json
         const dcgit = JSON.parse(fs.readFileSync('.dcgit.json', 'utf8'));
 
+        dcgit.uuid = uuid;
+
+        const keys = await contractInstance.methods.keys(uuid, dcgit.userAddress).call();
+
+        console.log(keys);
+
         // create the decipher by decrypting the encryption key and IV
-        const encryptionKey = dcgit.key;
-        const iv = dcgit.iv;
+        const encryptionKey = await privateKeyDecryption(dcgit.userPrivateKey, keys.key);
+        const iv = await privateKeyDecryption(dcgit.userPrivateKey, keys.iv);
 
         // Retrieve the repo information from the smart contract
         const repo = await contractInstance.methods.repositories(dcgit.uuid).call();
@@ -26,11 +33,11 @@ async function pull({ branch }) {
 
         const zippedGit = await pullFromIPFS(dcgit.ipfsAddress, decipher);
 
-        await syncRepo(branch, zippedGit);
+        await cloneRepo(zippedGit);
 
         await fs.promises.writeFile('.dcgit.json', JSON.stringify(dcgit));
 
-        console.log(chalk.greenBright(`Branch ${branch} synced successfully`));
+        console.log(chalk.greenBright("Repo cloned successfully"));
     } catch (error) {
         console.log(chalk.red(error));
     }

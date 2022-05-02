@@ -5,6 +5,7 @@ const init = require("./commands/init");
 const permit = require("./commands/permit");
 const push = require('./commands/push.js');
 const pull = require('./commands/pull.js');
+const clone = require('./commands/clone.js');
 
 /************************* Instruction to run the code ***********************************/
 /*   run npm i -g to install the cli named "dcgit"
@@ -25,6 +26,12 @@ program
     .description('Initialize a DCgit repo')
     .action(init)
 
+program
+    .command('clone')
+    .description('Clone a DCgit repo')
+    .requiredOption('-u, --uuid <uuid>', 'UUID of the repo to clone')
+    .action(clone)
+
 // TODO: generate cli error when --role is neither "read" nor "write"
 program
     .command('permit')
@@ -37,6 +44,7 @@ program
     .command('push')
     .description('Push the repo')
     .action(push)
+
 
 program
     .command('pull')

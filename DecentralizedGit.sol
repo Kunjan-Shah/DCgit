@@ -3,7 +3,6 @@
 pragma solidity ^0.8.13;
 
 contract GitRepoContract {
-    // Repo[] private repositories;
     mapping(string => Repo) repositories;
     // The keys will be encrypted using public key of reciever
     mapping(string => mapping(address => Key)) public keys;
@@ -65,12 +64,7 @@ contract GitRepoContract {
         repositories[_uuid].integrity = _integrity;
     }
 
-    function getRepoInfo(string calldata _uuid) public view returns (string memory storage_address, string memory integrity, string memory iv, string memory key){
-        require(
-            userPermissions[_uuid][msg.sender] == Permissions.Admin || 
-            userPermissions[_uuid][msg.sender] == Permissions.Writer ||
-            userPermissions[_uuid][msg.sender] == Permissions.Reader
-        );
-        return (repositories[_uuid].storage_address, repositories[_uuid].integrity, keys[_uuid][msg.sender].iv, keys[_uuid][msg.sender].key);
+    function getRepoInfo(string calldata _uuid) public view returns (string memory storage_address, string memory integrity){
+        return (repositories[_uuid].storage_address, repositories[_uuid].integrity);
     }
 }
