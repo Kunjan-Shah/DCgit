@@ -1,7 +1,7 @@
 const fs = require('fs');
-const web3 = require('web3');
 const crypto = require('crypto');
 const chalk = require('chalk');
+const loading =  require('loading-cli');
 const privateKeyDecryption = require('../utils/decryptWithPrivateKey');
 const pushFolderToIPFS = require('../utils/pushFolderToIPFS');
 const { contractInstance, web3, contractAddress } = require('../contract');
@@ -24,6 +24,10 @@ async function push() {
     // TODO: call pushToRepo
     console.log("Calling Smart Contract for pushing repo");
 
+    const load = loading("loading text!!").start()
+    load.color = 'yellow';
+    load.text = 'Please wait while we process your transaction\n';
+
     encoded = contractInstance.methods.pushToRepo(dcgit.uuid, ipfsAddress, integrity).encodeABI()
 
     const tx = {
@@ -33,9 +37,13 @@ async function push() {
     }
 
     const signed = await web3.eth.accounts.signTransaction(tx, dcgit.userPrivateKey)
-    web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', console.log)
+    await web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', console.log)
     // write dcgit.json and encrypted zip file to the repo
     fs.writeFileSync('./.dcgit.json', JSON.stringify(dcgit));
+    
+    // stop loader
+    load.stop()
+
     console.log(chalk.greenBright("Pushed successfully"));
 }
 

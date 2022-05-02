@@ -52,7 +52,7 @@ async function init() {
     }
 
     const signed = await web3.eth.accounts.signTransaction(tx, dcgit.userPrivateKey)
-    web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', console.log)
+    await web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', console.log)
   } catch (error) {
     console.log(chalk.red(error));
   }
