@@ -1,54 +1,51 @@
-const fs = require('fs');
-const crypto = require('crypto');
-const chalk = require('chalk');
-const publicKeyEncryption = require('../utils/encryptWithPublicKey');
-const ora = require('ora-classic');
-const pushFolderToIPFS = require('../utils/pushFolderToIPFS');
-const { randomUUID } = require('crypto'); // Added in: node v14.17.0
-const { contractInstance, web3, contractAddress } = require('../contract');
+import fs from 'fs'
+import crypto from 'crypto'
+import chalk from 'chalk'
+import ora from 'ora-classic'
+import publicKeyEncryption from '../utils/encryptWithPublicKey.js'
+import { contractInstance, web3, contractAddress } from '../contract.js'
+import pushFolderToIPFS from '../utils/pushFolderToIPFS.js'
 
-async function init() {
+export default async function init ({ uuid }) {
+  const spinner = ora('Loading unicorns')
+
   try {
     // Load user data file
-    const fileExist = fs.existsSync('./.dcgit.json');
+    const fileExist = fs.existsSync('./.dcgit.json')
     if (!fileExist) {
-      console.log(chalk.redBright('No dcgit.json file found. Please run "dcgit setup" first.'));
-      return;
+      console.log(chalk.redBright('No dcgit.json file found. Please run "dcgit setup" first.'))
+      return
     }
-    const dcgit = JSON.parse(await fs.promises.readFile('.dcgit.json', 'utf8'));
-    // Generating uuid for the repo
-    const uuid = randomUUID();
+    const dcgit = JSON.parse(await fs.promises.readFile('.dcgit.json', 'utf8'))
+
     // Generate a 256 bit symmetric encrytion key and initialization vector
-    const encryptionKey = crypto.randomBytes(32);
-    const iv = crypto.randomBytes(16);
+    const encryptionKey = crypto.randomBytes(32)
+    const iv = crypto.randomBytes(16)
 
     // encrypt the key with the user's public key
-    const encryptedKey = await publicKeyEncryption(dcgit.userPublicKey, encryptionKey.toString('hex'));
-    const encryptedIV = await publicKeyEncryption(dcgit.userPublicKey, iv.toString('hex'));
+    const encryptedKey = await publicKeyEncryption(dcgit.userPublicKey, encryptionKey.toString('hex'))
+    const encryptedIV = await publicKeyEncryption(dcgit.userPublicKey, iv.toString('hex'))
 
     // add the encrypted key to dcgit.json
-    dcgit.key = encryptionKey.toString('hex');
-    dcgit.iv = iv.toString('hex');
+    dcgit.key = encryptionKey.toString('hex')
+    dcgit.iv = iv.toString('hex')
 
     // push encrypted repo to IPFS
-    const cipher = crypto.createCipheriv('aes256', encryptionKey, iv);
-    const { ipfsAddress, integrity } = await pushFolderToIPFS('./.git', cipher);
-    dcgit.ipfsAddress = ipfsAddress;
-    dcgit.integrity = integrity;
-    dcgit.uuid = uuid;
+    const cipher = crypto.createCipheriv('aes256', encryptionKey, iv)
+    const { ipfsAddress, integrity } = await pushFolderToIPFS('./.git', cipher)
+    dcgit.ipfsAddress = ipfsAddress
+    dcgit.integrity = integrity
+    dcgit.uuid = uuid
 
-    console.log({ ipfsAddress, integrity });
+    await fs.promises.writeFile('.dcgit.json', JSON.stringify(dcgit))
 
-    await fs.promises.writeFile('.dcgit.json', JSON.stringify(dcgit));
+    console.info('Calling Smart Contract for initialize repo')
 
-    console.log(chalk.greenBright("DCgit repo initialized successfully"));
-    console.log("Calling Smart Contract for initialize repo");
+    spinner.start()
+    spinner.color = 'blue'
+    spinner.text = 'Please wait while ethereum processes your transaction'
 
-    var spinner = ora('Loading unicorns').start();
-    spinner.color = 'blue';
-    spinner.text = 'Please wait while ethereum processes your transaction';
-
-    encoded = contractInstance.methods.initializeRepo(uuid, ipfsAddress, integrity, encryptedKey, encryptedIV).encodeABI()
+    const encoded = contractInstance.methods.initializeRepo(uuid, ipfsAddress, integrity, encryptedKey, encryptedIV).encodeABI()
 
     const tx = {
       to: contractAddress,
@@ -57,13 +54,12 @@ async function init() {
     }
 
     const signed = await web3.eth.accounts.signTransaction(tx, dcgit.userPrivateKey)
-    await web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', console.log);
-    spinner.stop();
-    console.log(chalk.greenBright("Repo initialized successfully with uuid: " + uuid));
+    await web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', console.log)
+
+    console.log(chalk.greenBright('Repo initialized successfully with uuid: ' + uuid))
   } catch (error) {
-    spinner.stop();
-    console.log(chalk.red(error));
+    console.error(chalk.red(error))
+  } finally {
+    spinner.stop()
   }
 }
-
-module.exports = init;
