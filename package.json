@@ -1,14 +1,12 @@
 {
   "name": "dcgit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A decentralized Version Control System that allows users to maintain, share, and collaborate securely without a third-party seeing their code at any stage",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "bin": {
-    "dcgit": "./index.js"
-  },
+  "bin": "./index.js",
   "keywords": [
     "Decentralized",
     "Git"
@@ -16,23 +14,14 @@
   "author": "Kunjan Shah, Pratham Gupta",
   "license": "ISC",
   "dependencies": {
-    "@truffle/hdwallet-provider": "^2.0.8",
     "adm-zip": "^0.5.9",
     "chalk": "^4.1.2",
-    "commander": "^9.2.0",
-    "conf": "^10.1.2",
+    "commander": "^9.4.0",
     "eth-crypto": "^2.3.0",
-    "eth-ecies": "^1.0.6",
-    "ethereumjs-util": "^7.1.4",
-    "ethereumjs-wallet": "^1.0.2",
-    "ethers": "^5.6.4",
-    "ipfs": "^0.62.3",
     "ipfs-api": "^26.1.2",
-    "ipfs-core": "^0.14.3",
     "ora-classic": "^5.4.2",
-    "simple-git": "^3.7.1",
-    "web3": "^1.7.3",
-    "web3-eth-contract": "^1.7.3"
+    "simple-git": "^3.12.0",
+    "web3": "^1.7.5"
   },
   "type": "commonjs"
 }
