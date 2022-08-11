@@ -1,3 +1,4 @@
+import os from 'os'
 import path from 'path'
 import fs from 'fs'
 import simpleGit from 'simple-git'
@@ -8,44 +9,26 @@ import AdmZip from 'adm-zip'
  * @param {Buffer} zip - The zipped .git folder
  */
 export default async function cloneRepo (zip) {
-  console.log('Cloning repo')
-  // in the local directory, we create a .tmp folder and save the zip file there
-  fs.writeFileSync(path.join('.', 'dcgit-pulled.zip'), zip.toString('binary'), 'binary')
+  const tempFolder = fs.mkdtempSync(path.join(os.tmpdir(), 'dcgit-'))
 
-  const tempFolder = '/tmp/dcgit'
-  if (fs.existsSync(tempFolder)) {
-    await fs.promises.rm(path.join(tempFolder), { recursive: true }, (err) => {
-      if (err) throw err
-    })
-  }
+  const zipFilePath = path.join(tempFolder, 'dcgit-pulled.zip')
 
-  // create a folder call .dcgit
-  fs.mkdirSync(tempFolder)
+  fs.writeFileSync(zipFilePath, zip.toString('binary'), 'binary')
+
   fs.mkdirSync(path.join(tempFolder, '.git'))
-  console.log('unzipping......')
 
   // unzip the zip file
-  const zipFile = new AdmZip(path.join('.', 'dcgit-pulled.zip'))
-  zipFile.extractAllTo(path.join('.', tempFolder, '.git'), true)
+  const zipFile = new AdmZip(zipFilePath)
+  zipFile.extractAllTo(path.join(tempFolder, '.git'), true)
 
   // remove the zip file
-  fs.unlinkSync(path.join('.', 'dcgit-pulled.zip'))
+  fs.unlinkSync(zipFilePath)
 
-  console.log('unzip done')
+  // move the clone to current directory
+  fs.renameSync(path.join(tempFolder, '.git'), path.join('.', '.git'))
 
-  // Add the temporary folder as a git remote
   const git = simpleGit()
-  fs.mkdirSync('newRepo')
-  await git.clone(path.join('.', tempFolder), path.join('.', 'newRepo'))
+  await git.reset(['--hard'])
 
-  // delete the temporary folder
-  fs.rm(path.join(tempFolder), { recursive: true }, (err) => {
-    if (err) throw err
-  })
-
-  // bring the contents (including folders) of the newRepo folder to the current folder
-  await fs.promises.cp(path.join('.', 'newRepo'), path.join('.'), { recursive: true })
-  fs.rmSync('newRepo', { recursive: true, force: true }, (err) => {
-    if (err) throw err
-  })
+  await fs.promises.rm(tempFolder, { recursive: true })
 }

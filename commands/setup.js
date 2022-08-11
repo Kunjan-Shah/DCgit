@@ -1,7 +1,7 @@
-import fs from 'fs'
 import chalk from 'chalk'
 import EthCrypto from 'eth-crypto'
 import ora from 'ora-classic'
+import { config, PROPERTIES } from '../config.js'
 
 export default async function setup ({ privateKey }) {
   const spinner = ora('Loading unicorns')
@@ -15,16 +15,15 @@ export default async function setup ({ privateKey }) {
     if (privateKey.startsWith('0x') === false) {
       privateKey = '0x' + privateKey
     }
+
     const publicKey = EthCrypto.publicKeyByPrivateKey(privateKey)
+    const address = EthCrypto.publicKey.toAddress(publicKey)
 
-    // create dcgit.json file
-    const dcgit = {
-      userPrivateKey: privateKey,
-      userPublicKey: publicKey,
-      userAddress: EthCrypto.publicKey.toAddress(publicKey)
-    }
+    config.set(PROPERTIES.USER_PRIVATE_KEY, privateKey)
+    config.set(PROPERTIES.USER_PUBLIC_KEY, publicKey)
+    config.set(PROPERTIES.USER_ADDRESS, address)
 
-    await fs.promises.writeFile('.dcgit.json', JSON.stringify(dcgit))
+    config.set(PROPERTIES.SETUP, true)
   } catch (error) {
     console.log(chalk.red(error))
   } finally {

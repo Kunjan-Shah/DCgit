@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.13.0;
 
-contract GitRepoContract {
+contract DCGit {
     mapping(string => Repo) public repositories;
-    // The keys will be encrypted using public key of reciever
-    mapping(string => mapping(address => Key)) public keys;
-    mapping(string => mapping(address => Permissions)) public userPermissions;
+    mapping(string => mapping(address => Key)) public keys; // keys[repo id][address]=key
+    mapping(string => mapping(address => Permissions)) public userPermissions; // userPermissions[repo id][address]=Permission
 
     enum Permissions {
             None,
@@ -15,9 +14,10 @@ contract GitRepoContract {
             Maintainer,
             Admin
     }
+
     struct Repo {
         string uuid;
-        string storage_address;
+        string storageAddress;
         string integrity;  // SHA256 hash of the file, to verify if stored repo is intact
     }
 
@@ -26,13 +26,14 @@ contract GitRepoContract {
         string iv;
     }
 
-    function initializeRepo(string calldata _uuid, string calldata _storage_address, string calldata _integrity, string calldata _key, string calldata _iv) public {
+    function init(string calldata _uuid, string calldata _storageAddress, string calldata _integrity, string calldata _key, string calldata _iv) public {
+        require(bytes(repositories[_uuid].uuid).length == 0);
+
         repositories[_uuid] = Repo({
             uuid: _uuid,
-            storage_address: _storage_address,
+            storageAddress: _storageAddress,
             integrity: _integrity
         });
-
         userPermissions[_uuid][msg.sender] = Permissions.Admin;
         keys[_uuid][msg.sender] = Key({
             key: _key,
@@ -40,11 +41,10 @@ contract GitRepoContract {
         });
     }
 
-    function grantAccess(string calldata _uuid, address _address, Permissions _role, string calldata _key, string calldata _iv) public {
-        // check if caller is Admin
+    function permit(string calldata _uuid, address _address, Permissions _role, string calldata _key, string calldata _iv) public {
         require(userPermissions[_uuid][msg.sender] == Permissions.Admin);
-
         require(_role != Permissions.Admin);
+
         userPermissions[_uuid][_address] = _role;
 
         keys[_uuid][_address] = Key({
@@ -53,14 +53,13 @@ contract GitRepoContract {
         });
     }
 
-    function pushToRepo(string calldata _uuid, string calldata _storage_address, string calldata _integrity) public {
-        // check if user has writer or admin permission
+    function push(string calldata _uuid, string calldata _storageAddress, string calldata _integrity) public {
         require(
             userPermissions[_uuid][msg.sender] == Permissions.Admin || 
             userPermissions[_uuid][msg.sender] == Permissions.Writer
         );
 
-        repositories[_uuid].storage_address = _storage_address;
+        repositories[_uuid].storageAddress = _storageAddress;
         repositories[_uuid].integrity = _integrity;
     }
 }

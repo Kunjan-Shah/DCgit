@@ -1,47 +1,50 @@
-import fs from 'fs'
 import crypto from 'crypto'
 import chalk from 'chalk'
-import { contractInstance } from '../contract.js'
+import ora from 'ora-classic'
+import { contract } from '../contract.js'
+import { config, PROPERTIES } from '../config.js'
 import privateKeyDecryption from '../utils/decryptWithPrivateKey.js'
 import pullFromIPFS from '../utils/pullFromIPFS.js'
 import cloneRepo from '../utils/cloneRepo.js'
+import assert from 'assert'
 
 export default async function clone ({ uuid }) {
+  assert(config.get(PROPERTIES.SETUP) === true, 'Please run `dcgit setup` first')
+
+  const spinner = ora('Loading unicorns')
+
   try {
-    // Load dcgit.json
-    const dcgit = JSON.parse(fs.readFileSync('.dcgit.json', 'utf8'))
+    spinner.start()
+    spinner.color = 'blue'
+    spinner.text = `Cloning into ${uuid}`
 
-    dcgit.uuid = uuid
+    config.set(PROPERTIES.REPO_UUID, uuid)
 
-    const keys = await contractInstance.methods.keys(uuid, dcgit.userAddress).call()
-
-    console.log(keys)
+    const keys = await contract.getKeys(uuid)
 
     // create the decipher by decrypting the encryption key and IV
-    const encryptionKey = await privateKeyDecryption(dcgit.userPrivateKey, keys.key)
-    const iv = await privateKeyDecryption(dcgit.userPrivateKey, keys.iv)
+    const encryptionKey = await privateKeyDecryption(config.get(PROPERTIES.USER_PRIVATE_KEY), keys.key)
+    const iv = await privateKeyDecryption(config.get(PROPERTIES.USER_PRIVATE_KEY), keys.iv)
 
-    dcgit.key = encryptionKey
-    dcgit.iv = iv
+    config.set(PROPERTIES.ENCRYPTION_KEY, encryptionKey)
+    config.set(PROPERTIES.ENCRYPTION_IV, iv)
 
     // Retrieve the repo information from the smart contract
-    const repo = await contractInstance.methods.repositories(dcgit.uuid).call()
+    const { storageAddress, integrity } = await contract.getRepository(uuid)
 
-    console.log(repo, repo.uuid)
-
-    dcgit.ipfsAddress = repo.storage_address
-    dcgit.integrity = repo.integrity
+    config.set(PROPERTIES.IPFS_ADDRESS, storageAddress)
+    config.set(PROPERTIES.INTEGRITY, integrity)
 
     const decipher = crypto.createDecipheriv('aes256', Buffer.from(encryptionKey, 'hex'), Buffer.from(iv, 'hex'))
 
-    const zippedGit = await pullFromIPFS(dcgit.ipfsAddress, decipher)
-    console.log('comes here')
+    const zippedGit = await pullFromIPFS(storageAddress, decipher)
     await cloneRepo(zippedGit)
-    console.log('comes here 2')
-    await fs.promises.writeFile('.dcgit.json', JSON.stringify(dcgit))
 
+    spinner.stop()
     console.log(chalk.greenBright('Repo cloned successfully'))
   } catch (error) {
+    spinner.stop()
+    console.log(error)
     console.log(chalk.red(error))
   }
 }
