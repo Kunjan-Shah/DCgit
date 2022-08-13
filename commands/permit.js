@@ -3,8 +3,8 @@ import ora from 'ora-classic'
 import EthCrypto from 'eth-crypto'
 import assert from 'assert'
 import publicKeyEncryption from '../utils/encryptWithPublicKey.js'
-import { config, PROPERTIES } from '../config.js'
-import { contract } from '../contract.js'
+import { contract } from '../contract/contract.js'
+import { config, PROPERTIES } from '../config/config.js'
 
 export default async function permit ({ role, identity }) {
   assert(config.get(PROPERTIES.SETUP) === true, 'Please run `dcgit setup` first')

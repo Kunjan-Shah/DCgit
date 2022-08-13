@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import EthCrypto from 'eth-crypto'
 import ora from 'ora-classic'
-import { config, PROPERTIES } from '../config.js'
+import { config, PROPERTIES } from '../config/config.js'
 
 export default async function setup ({ privateKey }) {
   const spinner = ora('Loading unicorns')

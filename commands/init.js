@@ -2,8 +2,8 @@ import crypto from 'crypto'
 import chalk from 'chalk'
 import ora from 'ora-classic'
 import publicKeyEncryption from '../utils/encryptWithPublicKey.js'
-import { contract } from '../contract.js'
-import { config, PROPERTIES } from '../config.js'
+import { contract } from '../contract/contract.js'
+import { config, PROPERTIES } from '../config/config.js'
 import pushFolderToIPFS from '../utils/pushFolderToIPFS.js'
 
 export default async function init ({ uuid }) {

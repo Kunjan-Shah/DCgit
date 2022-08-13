@@ -1,5 +1,5 @@
 import Web3 from 'web3'
-import { config, PROPERTIES } from './config.js'
+import { config, PROPERTIES } from '../config/config.js'
 
 class Contract {
   constructor () {
@@ -195,7 +195,7 @@ class Contract {
       to: this.contractAddress,
       data: encoded,
       gas: 3000000,
-      gasPrice: this.web3.utils.toWei('10', 'gwei')
+      gasPrice: this.web3.utils.toWei('20', 'gwei')
     }
 
     // Sending the transaction to the network

@@ -1,12 +1,12 @@
 import crypto from 'crypto'
 import chalk from 'chalk'
 import ora from 'ora-classic'
-import { contract } from '../contract.js'
-import { config, PROPERTIES } from '../config.js'
+import assert from 'assert'
+import { contract } from '../contract/contract.js'
+import { config, PROPERTIES } from '../config/config.js'
 import privateKeyDecryption from '../utils/decryptWithPrivateKey.js'
 import pullFromIPFS from '../utils/pullFromIPFS.js'
 import cloneRepo from '../utils/cloneRepo.js'
-import assert from 'assert'
 
 export default async function clone ({ uuid }) {
   assert(config.get(PROPERTIES.SETUP) === true, 'Please run `dcgit setup` first')

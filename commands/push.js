@@ -1,8 +1,8 @@
 import crypto from 'crypto'
 import chalk from 'chalk'
 import ora from 'ora-classic'
-import { contract } from '../contract.js'
-import { config, PROPERTIES } from '../config.js'
+import { contract } from '../contract/contract.js'
+import { config, PROPERTIES } from '../config/config.js'
 import pushFolderToIPFS from '../utils/pushFolderToIPFS.js'
 
 export default async function push () {
@@ -32,8 +32,7 @@ export default async function push () {
     const receipt = await contract.push(uuid, ipfsAddress, integrity)
 
     spinner.stop()
-    console.log(chalk.greenBright('Pushed successfully'))
-    console.log(chalk.greenBright({ receipt }))
+    console.log(chalk.greenBright('Pushed successfully in transation: ' + receipt.transactionHash))
   } catch (error) {
     spinner.stop()
     console.error(chalk.red(error))

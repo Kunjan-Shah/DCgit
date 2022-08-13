@@ -1,7 +1,7 @@
 import crypto from 'crypto'
 import chalk from 'chalk'
-import { contract } from '../contract.js'
-import { config, PROPERTIES } from '../config.js'
+import { contract } from '../contract/contract.js'
+import { config, PROPERTIES } from '../config/config.js'
 import pullFromIPFS from '../utils/pullFromIPFS.js'
 import syncRepo from '../utils/syncRepo.js'
 
