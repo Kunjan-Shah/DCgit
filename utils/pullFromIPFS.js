@@ -9,7 +9,7 @@ import { fileGet } from './ipfs.js'
 export default async function pullFromIPFS (ipfsAddress, decipher) {
   const content = await fileGet(ipfsAddress)
 
-  const zippedGit = decipher.update(Buffer.from(content), 'binary', 'binary') + decipher.final('binary')
+  const zippedGit = Buffer.from(decipher.update(Buffer.from(content), 'binary', 'binary') + decipher.final('binary'), 'binary')
 
   return zippedGit
 }

@@ -1,6 +1,6 @@
 {
   "name": "dcgit",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A decentralized Version Control System that allows users to maintain, share, and collaborate securely without a third-party seeing their code at any stage",
   "main": "index.js",
   "scripts": {
