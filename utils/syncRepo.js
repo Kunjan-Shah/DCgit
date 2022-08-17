@@ -11,7 +11,8 @@ import createTemporaryGitRepo from './createTemoraryGitRepo.js'
  */
 export default async function syncRepo (branch, zip) {
   console.log(`Syncing repo with branch ${branch}`)
-  // in the local directory, we create a .tmp folder and save the zip file there
+
+  // Create a temporary directory to unzip the .git folder
   const tempFolder = fs.mkdtempSync(path.join(os.tmpdir(), 'dcgit-'))
 
   createTemporaryGitRepo(tempFolder, zip)

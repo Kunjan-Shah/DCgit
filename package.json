@@ -19,6 +19,8 @@
     "commander": "^9.4.0",
     "conf": "^10.2.0",
     "eth-crypto": "^2.3.0",
+    "figlet": "^1.5.2",
+    "gradient-string": "^2.0.1",
     "ipfs-http-client": "^57.0.3",
     "ora-classic": "^5.4.2",
     "simple-git": "^3.12.0",

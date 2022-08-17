@@ -6,7 +6,7 @@ import { contract } from '../contract/contract.js'
 import { config, PROPERTIES } from '../config/config.js'
 import pushFolderToIPFS from '../utils/pushFolderToIPFS.js'
 
-export default async function init ({ uuid }) {
+export default async function init (uuid) {
   const spinner = ora('Loading unicorns')
 
   try {

@@ -8,7 +8,7 @@ import privateKeyDecryption from '../utils/decryptWithPrivateKey.js'
 import pullFromIPFS from '../utils/pullFromIPFS.js'
 import cloneRepo from '../utils/cloneRepo.js'
 
-export default async function clone ({ uuid }) {
+export default async function clone (uuid) {
   assert(config.get(PROPERTIES.SETUP) === true, 'Please run `dcgit setup` first')
 
   const spinner = ora('Loading unicorns')
@@ -21,6 +21,10 @@ export default async function clone ({ uuid }) {
     config.set(PROPERTIES.REPO_UUID, uuid)
 
     const keys = await contract.getKeys(uuid)
+
+    if (keys.key === '' || keys.iv === '') {
+      throw new Error('No keys found for this repository. Are you sure you have permission to access this repository?')
+    }
 
     // create the decipher by decrypting the encryption key and IV
     const encryptionKey = await privateKeyDecryption(config.get(PROPERTIES.USER_PRIVATE_KEY), keys.key)
@@ -44,7 +48,6 @@ export default async function clone ({ uuid }) {
     console.log(chalk.greenBright('Repo cloned successfully'))
   } catch (error) {
     spinner.stop()
-    console.log(error)
     console.log(chalk.red(error))
   }
 }

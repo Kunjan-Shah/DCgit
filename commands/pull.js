@@ -5,7 +5,7 @@ import { config, PROPERTIES } from '../config/config.js'
 import pullFromIPFS from '../utils/pullFromIPFS.js'
 import syncRepo from '../utils/syncRepo.js'
 
-export default async function pull ({ branch }) {
+export default async function pull (branch) {
   try {
     const uuid = config.get(PROPERTIES.REPO_UUID)
 
